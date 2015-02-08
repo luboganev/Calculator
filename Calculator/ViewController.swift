@@ -1,0 +1,129 @@
+//
+//  ViewController.swift
+//  Calculator
+//
+//  Created by Lyubomir Ganev on 29/01/15.
+//  Copyright (c) 2015 Stanford University. All rights reserved.
+//
+
+import UIKit
+
+class ViewController: UIViewController {
+    
+    @IBOutlet weak var display: UILabel!
+    
+    @IBOutlet weak var history: UILabel!
+    
+    var userIsInTheMiddleOfTypingANumber = false
+    
+    var brain = CalculatorBrain()
+    
+    override func viewDidAppear(animated: Bool) {
+        super.viewDidAppear(animated)
+        updateHistory()
+    }
+    
+    @IBAction func appendDigit(sender: UIButton) {
+        let digit = sender.currentTitle!
+        if userIsInTheMiddleOfTypingANumber {
+            display.text = display.text! + digit
+        } else {
+            userIsInTheMiddleOfTypingANumber = true
+            display.text = digit
+        }
+    }
+    
+    @IBAction func appendPoint(sender: UIButton) {
+        let pointSymbol = sender.currentTitle!
+        if userIsInTheMiddleOfTypingANumber {
+            if display.text?.rangeOfString(pointSymbol) == nil {
+                display.text = display.text! + pointSymbol
+                
+            }
+        } else {
+            userIsInTheMiddleOfTypingANumber = true
+            display.text = "0" + pointSymbol
+        }
+    }
+
+    @IBAction func enter() {
+        if displayValue == nil {
+            return
+        }
+        
+        userIsInTheMiddleOfTypingANumber = false
+        displayValue = brain.pushOperand(displayValue!)
+        updateHistory()
+    }
+    
+    @IBAction func operate(sender: UIButton) {
+        if let operation = sender.currentTitle {
+            if userIsInTheMiddleOfTypingANumber {
+                if operation == "⁺/₋" {
+                    if let oldDisplayValue = displayValue {
+                        if oldDisplayValue.isSignMinus {
+                            display.text = dropFirst(display.text!)
+                        }
+                        if !oldDisplayValue.isZero {
+                            display.text = "-" + display.text!
+                        }
+                    }
+                    return
+                } else {
+                    enter()
+                }
+            }
+            
+            displayValue = brain.performOperation(operation)
+            updateHistory()
+        }
+        
+    }
+    
+    @IBAction func clear() {
+        brain.clear()
+        resetDisplayText()
+        updateHistory()
+    }
+    
+    @IBAction func backspace() {
+        if(!userIsInTheMiddleOfTypingANumber) {
+            return
+        }
+        
+        if countElements(display.text!) > 1 {
+            display.text = dropLast(display.text!)
+        } else {
+            resetDisplayText()
+        }
+    }
+    
+    private func updateHistory() {
+        history.text = brain.history()
+    }
+    
+    private func resetDisplayText() {
+        display.text = "0"
+        userIsInTheMiddleOfTypingANumber = false
+    }
+    
+    var displayValue: Double? {
+        get {
+            if let displayText = display.text {
+                if let parsedNumber = NSNumberFormatter().numberFromString(displayText) {
+                    return parsedNumber.doubleValue
+                }
+            }
+            return nil
+        }
+        set {
+            if let newNumber = newValue {
+                display.text = "\(newNumber)"
+            } else {
+                display.text = nil
+            }
+            userIsInTheMiddleOfTypingANumber = false
+        }
+    }
+}
+
