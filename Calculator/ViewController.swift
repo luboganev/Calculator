@@ -89,6 +89,8 @@ class ViewController: UIViewController {
     
     @IBAction func backspace() {
         if(!userIsInTheMiddleOfTypingANumber) {
+            displayValue = brain.undoOp()
+            updateHistory()
             return
         }
         

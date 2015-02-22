@@ -137,6 +137,14 @@ class CalculatorBrain {
         return evaluate()
     }
     
+    // Removes the last operation from the ops stack and recalculates it
+    func undoOp() -> Double? {
+        if !opStack.isEmpty {
+            opStack.removeLast()
+        }
+        return evaluate()
+    }
+    
     // Sets or gets the values of the variable operands in the ops stack
     var variableValues: Dictionary<String, Double> = Dictionary<String, Double>()
     
@@ -149,7 +157,7 @@ class CalculatorBrain {
     // current state of the ops stack
     var description: String {
         get {
-            if(opStack.isEmpty) {
+            if opStack.isEmpty {
                 return "Empty"
             }
             
