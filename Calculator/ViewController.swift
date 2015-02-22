@@ -118,7 +118,7 @@ class ViewController: UIViewController {
     }
     
     private func updateHistory() {
-        history.text = brain.history()
+        history.text = brain.description
     }
     
     private func resetDisplayText() {

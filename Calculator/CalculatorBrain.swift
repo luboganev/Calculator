@@ -16,8 +16,8 @@ class CalculatorBrain {
         case Operand(Double) // A double number
         case Variable(String) // A variable operand
         case ConstantOperation(String, () -> Double) // An operation returning a constant value
-        case UnaryOperation(String, Double -> Double) // An operator with 1 argument
-        case BinaryOperation(String, (Double, Double) -> Double) // An argument with 2 arguments
+        case UnaryOperation(String, Double -> Double) // An operation with 1 argument
+        case BinaryOperation(String, Int, (Double, Double) -> Double) // An operation with 2 arguments
         
         var description: String {
             get {
@@ -30,10 +30,26 @@ class CalculatorBrain {
                     return constantName
                 case .UnaryOperation(let symbol, _):
                     return symbol
-                case .BinaryOperation(let symbol, _):
+                case .BinaryOperation(let symbol, _, _):
                     return symbol
                 }
             }
+        }
+        
+        var precedence: Int {
+            get {
+                switch self {
+                case .BinaryOperation(_, let precedence, _):
+                    return precedence
+                default:
+                    return Op.defaultPrecedence()
+                }
+                
+            }
+        }
+        
+        static func defaultPrecedence() -> Int {
+            return Int.max
         }
     }
     
@@ -50,10 +66,10 @@ class CalculatorBrain {
         }
         
         // learn the known operations
-        learnOp(Op.BinaryOperation("×", *))
-        learnOp(Op.BinaryOperation("÷") { $1 / $0 })
-        learnOp(Op.BinaryOperation("+", +))
-        learnOp(Op.BinaryOperation("−") { $1 - $0 })
+        learnOp(Op.BinaryOperation("×", 2, *))
+        learnOp(Op.BinaryOperation("÷", 2) { $1 / $0 })
+        learnOp(Op.BinaryOperation("+", 1, +))
+        learnOp(Op.BinaryOperation("−", 1) { $1 - $0 })
         learnOp(Op.UnaryOperation("⁺/₋", { -$0 }))
         learnOp(Op.UnaryOperation("√", sqrt))
         learnOp(Op.UnaryOperation("sin", sin))
@@ -82,7 +98,7 @@ class CalculatorBrain {
                 if let operand = operandEvaluation.result {
                     return (operation(operand), operandEvaluation.remainingOps)
                 }
-            case .BinaryOperation(_, let operation):
+            case .BinaryOperation(_, _, let operation):
                 let op1Evaluation = evaluate(remainingOps)
                 if let operand1 = op1Evaluation.result {
                     let op2Evaluation = evaluate(op1Evaluation.remainingOps)
@@ -129,21 +145,78 @@ class CalculatorBrain {
         opStack.removeAll(keepCapacity: false)
     }
     
-    // Returns a visual pretty representation of the 
+    // Returns a visual pretty representation of the
     // current state of the ops stack
-    func history() -> String {
-        if(opStack.isEmpty) {
-            return "Empty"
+    var description: String {
+        get {
+            if(opStack.isEmpty) {
+                return "Empty"
+            }
+            
+            var prettyFormat = ""
+            var (result, _, remainingOps) = history(opStack)
+            prettyFormat += result
+            while !remainingOps.isEmpty {
+                (result, _, remainingOps) = history(remainingOps)
+                prettyFormat = result + " , " + prettyFormat
+            }
+            
+            switch opStack.last! {
+            case Op.ConstantOperation(_, _):
+                fallthrough
+            case Op.Operand(_):
+                break;
+            default:
+                prettyFormat += "="
+            }
+            
+            return prettyFormat
         }
-        
-        switch opStack.last! {
-        case Op.ConstantOperation(_, _):
-            fallthrough
-        case Op.Operand(_):
-            return "\(opStack)"
-        default:
-            return "\(opStack)="
+    }
+    
+    
+    // Evaluates recursively the ops stack and
+    // returns the string representing the pretty format of the ops
+    private func history(ops: [Op]) -> (result: String, opPrecedence: Int, remainingOps: [Op]) {
+        if !ops.isEmpty {
+            var remainingOps = ops
+            let op = remainingOps.removeLast()
+            let currentOpPrecedence = op.precedence
+            switch op {
+            case .Operand(let operand):
+                return ("\(operand)", currentOpPrecedence, remainingOps)
+            case .Variable(let variableName):
+                return (variableName, currentOpPrecedence, remainingOps)
+            case .ConstantOperation(let operationName, _):
+                return (operationName, currentOpPrecedence, remainingOps)
+            case .UnaryOperation(let operationName, _):
+                let operandEvaluation = history(remainingOps)
+                let result = operationName + "(" + operandEvaluation.result + ")"
+                return (result, currentOpPrecedence, operandEvaluation.remainingOps)
+            case .BinaryOperation(let operationName, _, _):
+                let op1Evaluation = history(remainingOps)
+                let op2Evaluation = history(op1Evaluation.remainingOps)
+                
+                var result = ""
+                
+                if op2Evaluation.opPrecedence < currentOpPrecedence {
+                    result += "(" + op2Evaluation.result + ")"
+                } else {
+                    result += op2Evaluation.result
+                }
+                
+                result += operationName
+                
+                if op1Evaluation.opPrecedence < currentOpPrecedence {
+                    result += "(" + op1Evaluation.result + ")"
+                } else {
+                    result += op1Evaluation.result
+                }
+
+                return (result, currentOpPrecedence, op2Evaluation.remainingOps)
+            }
         }
+        return ("?", Op.defaultPrecedence(), ops)
     }
     
     // This will be used at some point
