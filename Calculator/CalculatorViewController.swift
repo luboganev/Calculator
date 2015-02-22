@@ -144,5 +144,17 @@ class CalculatorViewController: UIViewController {
             userIsInTheMiddleOfTypingANumber = false
         }
     }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let identifier = segue.identifier {
+            switch identifier {
+                case "Show Graph":
+                    if let vc = segue.destinationViewController as? CalculatorGraphViewController {
+                        
+                }
+                default: break
+            }
+        }
+    }
 }
 

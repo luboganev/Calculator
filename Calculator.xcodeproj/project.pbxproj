@@ -14,6 +14,7 @@
 		9C04EC311A7AA27C0091CF02 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9C04EC2F1A7AA27C0091CF02 /* LaunchScreen.xib */; };
 		9C04EC3D1A7AA27C0091CF02 /* CalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C04EC3C1A7AA27C0091CF02 /* CalculatorTests.swift */; };
 		9C5E43181A7C095300E528B5 /* CalculatorBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E43171A7C095300E528B5 /* CalculatorBrain.swift */; };
+		9CFF36451A9A3F2900A2F3C8 /* CalculatorGraphViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CFF36441A9A3F2900A2F3C8 /* CalculatorGraphViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		9C04EC3B1A7AA27C0091CF02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C04EC3C1A7AA27C0091CF02 /* CalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorTests.swift; sourceTree = "<group>"; };
 		9C5E43171A7C095300E528B5 /* CalculatorBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalculatorBrain.swift; sourceTree = "<group>"; };
+		9CFF36441A9A3F2900A2F3C8 /* CalculatorGraphViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalculatorGraphViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				9C04EC281A7AA27C0091CF02 /* CalculatorViewController.swift */,
+				9CFF36441A9A3F2900A2F3C8 /* CalculatorGraphViewController.swift */,
 				9C5E43171A7C095300E528B5 /* CalculatorBrain.swift */,
 				9C04EC2A1A7AA27C0091CF02 /* Main.storyboard */,
 				9C04EC241A7AA27C0091CF02 /* Supporting Files */,
@@ -216,6 +219,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9C5E43181A7C095300E528B5 /* CalculatorBrain.swift in Sources */,
+				9CFF36451A9A3F2900A2F3C8 /* CalculatorGraphViewController.swift in Sources */,
 				9C04EC291A7AA27C0091CF02 /* CalculatorViewController.swift in Sources */,
 				9C04EC271A7AA27C0091CF02 /* AppDelegate.swift in Sources */,
 			);
