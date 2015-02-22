@@ -227,31 +227,20 @@ class CalculatorBrain {
         return ("?", Op.defaultPrecedence(), ops)
     }
     
-    // Persistence
-    private let opStackPersistenceName = "opStack"
-    private let variablesPersistentName = "variables"
-    
     var program: AnyObject { //PropertyList
         get {
-            return [opStackPersistenceName: opStack.map { $0.description },
-                variablesPersistentName: variableValues];
+            return opStack.map { $0.description }
         }
         set {
-            if let persistenceDict = newValue as? Dictionary<String, AnyObject> {
-                if let variablesDict = persistenceDict[variablesPersistentName] as? Dictionary<String, Double> {
-                    variableValues = variablesDict
-                }
-                
-                if let opSymbols = persistenceDict[opStackPersistenceName] as? Array<String> {
-                    var newOpStack = [Op]()
-                    for opSymbol in opSymbols {
-                        if let op = knownOps[opSymbol] {
-                            newOpStack.append(op)
-                        } else if let operand = NSNumberFormatter().numberFromString(opSymbol)?.doubleValue {
-                            newOpStack.append(.Operand(operand))
-                        } else {
-                            newOpStack.append(.Variable(opSymbol))
-                        }
+            if let opSymbols = newValue as? Array<String> {
+                var newOpStack = [Op]()
+                for opSymbol in opSymbols {
+                    if let op = knownOps[opSymbol] {
+                        newOpStack.append(op)
+                    } else if let operand = NSNumberFormatter().numberFromString(opSymbol)?.doubleValue {
+                        newOpStack.append(.Operand(operand))
+                    } else {
+                        newOpStack.append(.Variable(opSymbol))
                     }
                 }
             }

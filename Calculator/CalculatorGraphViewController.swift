@@ -8,6 +8,20 @@
 
 import UIKit
 
-class CalculatorGraphViewController: UIViewController {
+class CalculatorGraphViewController: UIViewController, GraphViewDataSource {
 
+    @IBOutlet weak var graphView: GraphView! {
+        didSet {
+            graphView.dataSource = self
+            graphView.addGestureRecognizer(UIPinchGestureRecognizer(target: graphView, action: "scale:"))
+            graphView.addGestureRecognizer(UIPanGestureRecognizer(target: graphView, action: "pan:"))
+            let doubleTapRecognizer = UITapGestureRecognizer(target: graphView, action: "recenter:")
+            doubleTapRecognizer.numberOfTapsRequired = 2
+            graphView.addGestureRecognizer(doubleTapRecognizer)
+        }
+    }
+    
+    func evaluatedValue(sender: GraphView, xValue: Double) -> Double {
+        return 1.0
+    }
 }
