@@ -149,8 +149,10 @@ class CalculatorViewController: UIViewController {
         if let identifier = segue.identifier {
             switch identifier {
                 case "Show Graph":
-                    if let vc = segue.destinationViewController as? CalculatorGraphViewController {
-                        
+                    if let navc = segue.destinationViewController as? UINavigationController {
+                        if let vc = navc.viewControllers[0] as? CalculatorGraphViewController {
+                            vc.program = brain.program
+                    }
                 }
                 default: break
             }

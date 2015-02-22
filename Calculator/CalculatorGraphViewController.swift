@@ -9,6 +9,21 @@
 import UIKit
 
 class CalculatorGraphViewController: UIViewController, GraphViewDataSource {
+    
+    private let brain = CalculatorBrain()
+    
+    var program: AnyObject? {
+        didSet {
+            if let newProgram: AnyObject = program {
+                brain.program = newProgram
+            }
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem.title = brain.shortDescription
+    }
 
     @IBOutlet weak var graphView: GraphView! {
         didSet {
@@ -22,6 +37,7 @@ class CalculatorGraphViewController: UIViewController, GraphViewDataSource {
     }
     
     func evaluatedValue(sender: GraphView, xValue: Double) -> Double? {
-        return 1/xValue
+        brain.variableValues.updateValue(xValue, forKey: "M")
+        return brain.evaluate()
     }
 }

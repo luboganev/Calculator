@@ -182,6 +182,15 @@ class CalculatorBrain {
         }
     }
     
+    var shortDescription: String {
+        get {
+            if opStack.isEmpty {
+                return "Empty"
+            }
+            return history(opStack).result
+        }
+    }
+    
     
     // Evaluates recursively the ops stack and
     // returns the string representing the pretty format of the ops
@@ -243,6 +252,7 @@ class CalculatorBrain {
                         newOpStack.append(.Variable(opSymbol))
                     }
                 }
+                opStack = newOpStack
             }
         }
     }

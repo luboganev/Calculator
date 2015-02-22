@@ -276,7 +276,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="GNO-5s-VU0" kind="showDetail" identifier="Show Graph" id="3UK-8p-3o0"/>
+                                    <segue destination="a9v-gJ-cNt" kind="showDetail" identifier="Show Graph" id="phK-dI-qNC"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zYm-o9-G7P">
@@ -528,6 +528,9 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="Ear-Th-ouA">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="GNO-5s-VU0" kind="relationship" relationship="rootViewController" id="GqF-gw-0fR"/>
                     </connections>
@@ -538,6 +541,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="GqF-gw-0fR"/>
+        <segue reference="phK-dI-qNC"/>
     </inferredMetricsTieBreakers>
 </document>
