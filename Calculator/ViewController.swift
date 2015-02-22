@@ -82,6 +82,7 @@ class ViewController: UIViewController {
     
     @IBAction func clear() {
         brain.clear()
+        brain.variableValues.removeAll(keepCapacity: false)
         resetDisplayText()
         updateHistory()
     }
@@ -98,6 +99,24 @@ class ViewController: UIViewController {
         }
     }
     
+    private let MEMORY_VARIABLE_NAME = "M"
+    
+    @IBAction func pushMemory(sender: AnyObject) {
+        userIsInTheMiddleOfTypingANumber = false
+        displayValue = brain.pushOperand(MEMORY_VARIABLE_NAME)
+        updateHistory()
+    }
+    
+    
+    @IBAction func setMemoryValue(sender: AnyObject) {
+        if let newMemoryValue = displayValue {
+            userIsInTheMiddleOfTypingANumber = false
+            brain.variableValues.updateValue(newMemoryValue, forKey: MEMORY_VARIABLE_NAME)
+            displayValue = brain.evaluate()
+            updateHistory()
+        }
+    }
+    
     private func updateHistory() {
         history.text = brain.history()
     }
@@ -110,9 +129,7 @@ class ViewController: UIViewController {
     var displayValue: Double? {
         get {
             if let displayText = display.text {
-                if let parsedNumber = NSNumberFormatter().numberFromString(displayText) {
-                    return parsedNumber.doubleValue
-                }
+                return NSNumberFormatter().numberFromString(displayText)?.doubleValue
             }
             return nil
         }
