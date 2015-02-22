@@ -21,7 +21,7 @@ class CalculatorGraphViewController: UIViewController, GraphViewDataSource {
         }
     }
     
-    func evaluatedValue(sender: GraphView, xValue: Double) -> Double {
-        return 1.0
+    func evaluatedValue(sender: GraphView, xValue: Double) -> Double? {
+        return 1/xValue
     }
 }

@@ -9,55 +9,50 @@
 import UIKit
 
 protocol GraphViewDataSource: class {
-    func evaluatedValue(sender: GraphView, xValue: Double) -> Double
+    func evaluatedValue(sender: GraphView, xValue: Double) -> Double?
 }
 
 @IBDesignable
 class GraphView: UIView {
-    
-    private var axesDrawer = AxesDrawer()
 
     @IBInspectable
-    var scale: CGFloat = 50.0 {
-        didSet {
-            scale = min(max(scale, 1.0), 10000.0)
+    var scale: CGFloat {
+        set {
+            axisScale = newValue
             setNeedsDisplay()
+        }
+        get {
+            return axisScale
+        }
+    }
+    
+    private var axisScale: CGFloat = 50.0 {
+        didSet {
+            axisScale = min(max(axisScale, 1.0), 10000.0)
         }
     }
     
     weak var dataSource: GraphViewDataSource?
+
+    private let axesDrawer = AxesDrawer()
+    private var lastKnownDrawRect: CGRect?
     
-    private var initialGraphCenter: CGPoint?
-    
-    private var lastDrawRect: CGRect?
-    
-    private var graphCenter: CGPoint {
-        get {
-            if initialGraphCenter == nil {
-                initialGraphCenter = CGPointMake(CGRectGetMidX(bounds), CGRectGetMidY(bounds))
-            }
-            return initialGraphCenter!
-        }
-        set {
-            initialGraphCenter = newValue
-        }
-    }
-    
-    
+    private var axisCenterOrigin: CGPoint?
     
     func scale(gesture: UIPinchGestureRecognizer) {
         if gesture.state == .Changed {
-            let originalScale = scale
-            scale *= gesture.scale
-            if scale != originalScale {
+            let originalScale = axisScale
+            axisScale *= gesture.scale
+            if axisScale != originalScale {
+                let resultGestureScale = axisScale / originalScale
                 let gestureOrigin = gesture.locationInView(self)
-                let fixCenterOffset = CGPointMake((graphCenter.x - gestureOrigin.x) * (gesture.scale - 1),
-                    (graphCenter.y - gestureOrigin.y) * (gesture.scale - 1))
-                
-                graphCenter = CGPointMake(graphCenter.x + fixCenterOffset.x,
-                    graphCenter.y + fixCenterOffset.y)
+                if axisCenterOrigin != nil {
+                    axisCenterOrigin = CGPointMake(axisCenterOrigin!.x + (axisCenterOrigin!.x - gestureOrigin.x) * (resultGestureScale - 1),
+                        axisCenterOrigin!.y + (axisCenterOrigin!.y - gestureOrigin.y) * (resultGestureScale - 1))
+                }
             }
             gesture.scale = 1
+            setNeedsDisplay()
         }
     }
     
@@ -66,41 +61,69 @@ class GraphView: UIView {
         case .Ended: fallthrough
         case .Changed:
             let translation = gesture.translationInView(self)
-            graphCenter = CGPointMake(graphCenter.x + translation.x, graphCenter.y + translation.y)
-            gesture.setTranslation(CGPointZero, inView: self)
-            setNeedsDisplay()
+            if axisCenterOrigin != nil {
+                axisCenterOrigin = CGPointMake(axisCenterOrigin!.x + translation.x, axisCenterOrigin!.y + translation.y)
+                gesture.setTranslation(CGPointZero, inView: self)
+                setNeedsDisplay()
+            }
         default: break
         }
 
     }
     
     func recenter(gesture: UITapGestureRecognizer) {
-        graphCenter = gesture.locationInView(self)
+        axisCenterOrigin = gesture.locationInView(self)
         setNeedsDisplay()
     }
     
     private func pixelXToUnitX(pixelX: CGFloat) -> Double {
-        return Double(pixelX / scale)
+        return Double((pixelX - axisCenterOrigin!.x) / axisScale)
     }
     
     private func unitYtoPixelY(pointY: Double) -> CGFloat {
-        return scale * CGFloat(pointY)
+        return axisCenterOrigin!.y - axisScale * CGFloat(pointY)
     }
     
-    // Only override drawRect: if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
     override func drawRect(rect: CGRect) {
-        if let lastDrawRect = lastDrawRect {
-            graphCenter = CGPointMake(graphCenter.x + (rect.width - lastDrawRect.width) / 2.0,
-                graphCenter.y + (rect.height - lastDrawRect.height) / 2.0)
+        // initial position
+        if axisCenterOrigin == nil {
+            axisCenterOrigin = CGPointMake(CGRectGetMidX(rect), CGRectGetMidY(rect))
         }
-        lastDrawRect = rect
         
-        axesDrawer.drawAxesInRect(rect, origin: graphCenter, pointsPerUnit: scale)
+        // compensate for any size changes
+        if lastKnownDrawRect != nil {
+            axisCenterOrigin = CGPointMake(axisCenterOrigin!.x + (rect.width - lastKnownDrawRect!.width) / 2.0,
+                axisCenterOrigin!.y + (rect.height - lastKnownDrawRect!.height) / 2.0)
+        }
+        lastKnownDrawRect = rect
         
-        // TODO: draw the line
-        for i in Int(0)...Int(rect.width) {
+        // draw the axes
+        axesDrawer.drawAxesInRect(rect, origin: axisCenterOrigin!, pointsPerUnit: axisScale)
+        
+        // draw the function
+        if let data = dataSource {
+            CGContextSaveGState(UIGraphicsGetCurrentContext())
+            let path = UIBezierPath()
             
+            var lastDrawnValue: Double? = nil;
+            for i in Int(0)...Int(rect.width) {
+                if let value = data.evaluatedValue(self, xValue: pixelXToUnitX(CGFloat(i))) {
+                    if value.isNormal || value.isZero {
+                        if lastDrawnValue != nil {
+                            path.addLineToPoint(CGPoint(x: CGFloat(i), y: unitYtoPixelY(value)))
+                        } else {
+                            path.moveToPoint(CGPoint(x: CGFloat(i), y: unitYtoPixelY(value)))
+                        }
+                        lastDrawnValue = value
+                    } else {
+                        lastDrawnValue = nil
+                    }
+                } else {
+                    lastDrawnValue = nil
+                }
+            }
+            path.stroke()
+            CGContextRestoreGState(UIGraphicsGetCurrentContext())
         }
     }
 }
