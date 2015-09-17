@@ -62,7 +62,7 @@ class CalculatorViewController: UIViewController {
                 if operation == "⁺/₋" {
                     if let oldDisplayValue = displayValue {
                         if oldDisplayValue.isSignMinus {
-                            display.text = dropFirst(display.text!)
+                            display.text = String((display.text!).characters.dropFirst())
                         }
                         if !oldDisplayValue.isZero {
                             display.text = "-" + display.text!
@@ -94,8 +94,8 @@ class CalculatorViewController: UIViewController {
             return
         }
         
-        if countElements(display.text!) > 1 {
-            display.text = dropLast(display.text!)
+        if (display.text!).characters.count > 1 {
+            display.text = String((display.text!).characters.dropLast())
         } else {
             resetDisplayText()
         }

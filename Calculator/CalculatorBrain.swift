@@ -12,7 +12,7 @@ class CalculatorBrain {
     
     // The internal helper data structure allowing us to differentiate 
     // between the different inputs in the CalculatorBrain
-    private enum Op: Printable {
+    private enum Op: CustomStringConvertible {
         case Operand(Double) // A double number
         case Variable(String) // A variable operand
         case ConstantOperation(String, () -> Double) // An operation returning a constant value

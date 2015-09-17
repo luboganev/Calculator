@@ -84,7 +84,7 @@ class AxesDrawer
             
             // now create a bounding box inside whose edges those four hashmarks lie
             let bboxSize = pointsPerHashmark * startingHashmarkRadius * 2
-            var bbox = CGRect(center: origin, size: CGSize(width: bboxSize, height: bboxSize))
+            let bbox = CGRect(center: origin, size: CGSize(width: bboxSize, height: bboxSize))
 
             // formatter for the hashmark labels
             let formatter = NSNumberFormatter()
@@ -107,7 +107,7 @@ class AxesDrawer
                 if let bottomHashmarkPoint = alignedPoint(x: origin.x, y: bbox.maxY, insideBounds:bounds) {
                     drawHashmarkAtLocation(bottomHashmarkPoint, .Left("-\(label)"))
                 }
-                bbox.inset(dx: -pointsPerHashmark, dy: -pointsPerHashmark)
+                bbox.insetInPlace(dx: -pointsPerHashmark, dy: -pointsPerHashmark)
             }
         }
     }
@@ -170,7 +170,7 @@ class AxesDrawer
     // if contentScaleFactor is left to its default (1), then things will be on the nearest "point" boundary instead
     // the lines will still be sharp in that case, but might be a pixel (or more theoretically) off of where they should be
 
-    private func alignedPoint(#x: CGFloat, y: CGFloat, insideBounds: CGRect? = nil) -> CGPoint?
+    private func alignedPoint(x x: CGFloat, y: CGFloat, insideBounds: CGRect? = nil) -> CGPoint?
     {
         let point = CGPoint(x: align(x), y: align(y))
         if let permissibleBounds = insideBounds {
